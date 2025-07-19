@@ -12,29 +12,36 @@ export class PhishingService {
   ) {}
 
   //i used this method to check the send mail works
-  async sendTestEmail(to: string, attemptId: string) {
-    const testAccount = await nodemailer.createTestAccount();
+async sendTestEmail(to: string) {
+  const attempt = await this.model.create({
+    email: to,
+    clicked: false,
+  });
 
-   const transporter = nodemailer.createTransport({
-      streamTransport: true,
-      newline: 'unix',
-      buffer: true,
-    });
+  const attemptId = attempt._id.toString();
 
-    const info = await transporter.sendMail({
-      from: '"Phishing Sim" <no-reply@phishsim.com>',
-      to: 'test@example.com',
-      subject: 'Test Phishing Email',
-      text: 'This is a fake phishing email for test.',
-      html: '<b>This is a fake phishing email for test.</b>',
-    });
-    const phishingLink = `http://localhost:3002/phishing/click/${attemptId}`;
-    const emailContent = `
-      <h2>Security Alert</h2>
-      <p>Please verify your account immediately.</p>
-      <a href="${phishingLink}">Click here to verify</a>
-    `;
-    await this.model.findByIdAndUpdate(
+  const transporter = nodemailer.createTransport({
+    streamTransport: true,
+    newline: 'unix',
+    buffer: true,
+  });
+
+  const phishingLink = `http://localhost:3002/phishing/click/${attemptId}`;
+  const emailContent = `
+    <h2>Security Alert</h2>
+    <p>Please verify your account immediately.</p>
+    <a href="${phishingLink}">Click here to verify</a>
+  `;
+
+  const info = await transporter.sendMail({
+    from: '"Phishing Sim" <no-reply@phishsim.com>',
+    to,
+    subject: 'Test Phishing Email',
+    html: emailContent,
+    text: 'This is a fake phishing email for test.',
+  });
+
+  await this.model.findByIdAndUpdate(
     attemptId,
     {
       email: to,
@@ -42,12 +49,17 @@ export class PhishingService {
       status: 'sent',
       updatedAt: new Date(),
     },
-    { upsert: false, new: true },
+    { new: true }
   );
-    console.log('Preview URL:', info.message.toString());
-  }
 
-  async sendPhishingEmail(to: string, attemptId: string) {
+  // Debugging output
+  const all = await this.model.find().exec();
+  console.log('All Attempts:', all);
+  console.log('Preview Email Content:\n', info.message.toString());
+}
+
+  async sendPhishingEmail(to: string) {
+    const attemptId = to
     const phishingLink = `http://localhost:3002/phishing/click/${attemptId}`;
 
     const emailContent = `
@@ -80,13 +92,6 @@ export class PhishingService {
       html: emailContent,
     });
   } catch(error) {
-    //falling to example to not fail the server
-    await this.model.findByIdAndUpdate(
-      attemptId,
-      { email: to, content: emailContent },
-      { upsert: true, new: true },
-    );
-    this.sendTestEmail(to, emailContent)
     console.error('Error sending phishing email:', error);
   }
 

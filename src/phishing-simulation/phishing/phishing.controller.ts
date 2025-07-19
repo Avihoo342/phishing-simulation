@@ -8,8 +8,9 @@ export class PhishingController {
 
 
   @Post('send')
-  async sendEmail(@Body() body: { to: string; attemptId: string }) {
-    return this.phishingService.sendTestEmail(body.to, body.attemptId);
+  async sendEmail(@Body() body: { to: string }) {
+    console.log("TO IS TO ", body.to);
+    return this.phishingService.sendTestEmail(body.to);
     //return this.phishingService.sendPhishingEmail(body.to, body.attemptId);
   }
 
