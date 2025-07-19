@@ -41,20 +41,13 @@ async sendTestEmail(to: string) {
     text: 'This is a fake phishing email for test.',
   });
 
-  await this.model.findByIdAndUpdate(
-    attemptId,
-    {
-      email: to,
-      content: emailContent,
-      status: 'sent',
-      updatedAt: new Date(),
-    },
-    { new: true }
-  );
-
-  // Debugging output
-  const all = await this.model.find().exec();
-  console.log('All Attempts:', all);
+  await this.model.create({
+    email: to,
+    clicked: false,
+    content: emailContent,
+    status: 'sent',
+    updatedAt: new Date(),
+  });
   console.log('Preview Email Content:\n', info.message.toString());
 }
 
