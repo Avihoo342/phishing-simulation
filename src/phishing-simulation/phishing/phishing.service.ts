@@ -56,7 +56,11 @@ async sendTestEmail(to: string) {
 }
 
   async sendPhishingEmail(to: string) {
-    const attemptId = to
+    const attempt = await this.model.create({
+      email: to,
+      clicked: false,
+    });
+    const attemptId = attempt._id.toString();
     const phishingLink = `http://localhost:3002/phishing/click/${attemptId}`;
 
     const emailContent = `
@@ -66,10 +70,16 @@ async sendTestEmail(to: string) {
     `;
 
     await this.model.findByIdAndUpdate(
-      attemptId,
-      { email: to, content: emailContent },
-      { upsert: true, new: true },
-    );
+    attempt._id,
+    {
+      email: to,
+      clicked: false,
+      content: emailContent,
+      status: 'sent',
+      updatedAt: new Date(),
+    },
+    { new: true }
+  );
     try{
     const transporter = nodemailer.createTransport({
       service: 'gmail',
