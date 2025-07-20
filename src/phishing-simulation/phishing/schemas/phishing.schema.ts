@@ -5,7 +5,7 @@ export type PhishingAttemptDocument = PhishingAttempt & Document;
 
 @Schema({ timestamps: true })
 export class PhishingAttempt {
-  @Prop({ required: false })
+  @Prop({ required: true })
   email: string;
 
   @Prop()
@@ -13,6 +13,9 @@ export class PhishingAttempt {
 
   @Prop({ default: false })
   status: string;
+
+  @Prop({ default: false })
+  clicked: boolean;
 }
 
 export const PhishingAttemptSchema = SchemaFactory.createForClass(PhishingAttempt);
