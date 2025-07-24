@@ -12,7 +12,7 @@ export class PhishingService {
   ) {}
 
   async sendPhishingEmail(to: string, attemptId: string) {
-    const phishingLink = `http://localhost:3002/phishing/click/${attemptId}`;
+    const phishingLink = `http://localhost:3001/attempts/${attemptId}`;
 
     const emailContent = `
       <h2>Security Alert</h2>

@@ -21,4 +21,14 @@ export class AttemptsService {
   async getAll() {
     return this.model.find();
   }
+
+  async updateClick(id: string){
+    await this.model.findByIdAndUpdate(
+      id,
+      { status: 'CLICKED' },
+      { new: true }
+    );
+    const response = await axios.get(`http://localhost:3002/phishing/click/${id}`);
+    return response.data;
+  }
 }
