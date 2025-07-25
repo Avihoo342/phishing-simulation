@@ -28,6 +28,11 @@ To run MongoDB locally with Docker, use the following command
 docker run -d -p 27017:27017 --name mongo mongo
 
 
+How to run using dockers: 
+\phishing-simulation\phishing-simulation - go to this folder of the project 
+run: docker-compose up --build
+
+wait 3 minutes until its stable
 
  How to get application password to your gmail:
 

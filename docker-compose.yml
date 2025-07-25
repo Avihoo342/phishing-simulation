@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  phishing-management:
+    build:
+      context: .
+      dockerfile: ./src/phishing-management/Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/app
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/phishing-db
+      - EMAIL_USER=avihoo372@gmail.com
+      - EMAIL_PASS=aoht vrto grer yurd
+    depends_on:
+      - mongo
+    networks:
+      - phishing-net
+
+  phishing-simulation:
+    build:
+      context: .
+      dockerfile: ./src/phishing-simulation/Dockerfile
+    ports:
+      - "3002:3002"
+    volumes:
+      - .:/app
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/phishing-db
+      - EMAIL_USER=avihoo372@gmail.com
+      - EMAIL_PASS=aoht vrto grer yurd
+    depends_on:
+      - mongo
+    networks:
+      - phishing-net
+
+  phishing-frontend:
+    build:
+      context: C:/dev/phishing-simulation-front
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    networks:
+      - phishing-net
+    stdin_open: true
+    tty: true
+    environment:
+      - REACT_APP_SIMULATION_URL=http://phishing-simulation:3002
+      - REACT_APP_MANAGEMENT_URL=http://phishing-management:3001
+
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - phishing-net
+
+volumes:
+  mongo-data:
+
+networks:
+  phishing-net:
+    driver: bridge

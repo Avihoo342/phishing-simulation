@@ -10,7 +10,7 @@ export class AttemptsService {
 
   async create(data: any) {
     const attempt = await this.model.create({ ...data, status: 'PENDING' });
-    await axios.post('http://localhost:3002/phishing/send', {
+    await axios.post('http://phishing-simulation:3002/phishing/send', {
       attemptId: attempt._id,
       to: data.email,
     });
@@ -28,7 +28,7 @@ export class AttemptsService {
       { status: 'CLICKED' },
       { new: true }
     );
-    const response = await axios.get(`http://localhost:3002/phishing/click/${id}`);
+    const response = await axios.get(`http://phishing-simulation:3002/phishing/click/${id}`);
     return response.data;
   }
 }
