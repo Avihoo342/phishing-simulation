@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { PhishingAttempt } from './schemas/phishing.schema';
 import { Model } from 'mongoose';
@@ -45,6 +45,7 @@ export class PhishingService {
     });
   } catch(error) {
     console.error('Error sending phishing email:', error);
+     throw new InternalServerErrorException('Failed to send phishing email');
   }
 
     return { message: 'Phishing email sent' };
