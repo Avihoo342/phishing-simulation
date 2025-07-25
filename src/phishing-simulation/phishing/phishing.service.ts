@@ -19,13 +19,7 @@ export class PhishingService {
       <p>Please verify your account immediately.</p>
       <a href="${phishingLink}">Click here to verify</a>
     `;
-
-    await this.model.findByIdAndUpdate(
-      attemptId,
-      { email: to, content: emailContent, clicked: false },
-      { upsert: true, new: true },
-    );
-    try{
+    try {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -43,6 +37,12 @@ export class PhishingService {
       subject: 'Important Account Notification',
       html: emailContent,
     });
+    
+    await this.model.findByIdAndUpdate(
+      attemptId,
+      { email: to, content: emailContent, clicked: false },
+      { upsert: true, new: true },
+    );
   } catch(error) {
     console.error('Error sending phishing email:', error);
      throw new InternalServerErrorException('Failed to send phishing email');
