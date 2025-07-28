@@ -1,21 +1,24 @@
-import { Injectable } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
+import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { RegisterAuthDto } from './dto/register-auth.dto';
+import { LoginAuthDto } from './dto/login-auth.dto';
+import { IUsersService } from '../users/interfaces/users-service.interface';
+import { IAuthService } from './interfaces/auth-service.interface';
 
 @Injectable()
-export class AuthService {
-  constructor(private usersService: UsersService, private jwtService: JwtService) {}
+export class AuthService implements IAuthService {
+  constructor(@Inject('IUsersService') private readonly usersService: IUsersService, private jwtService: JwtService) {}
 
-  async register(data: any) {
+  async register(data: RegisterAuthDto) {
     const hashedPassword = await bcrypt.hash(data.password, 10);
     const user = await this.usersService.create({ ...data, password: hashedPassword });
     return user;
   }
 
-  async login({ email, password }: { email: string; password: string }) {
-    const user = await this.usersService.findByEmail(email);
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+  async login(data: LoginAuthDto) {
+    const user = await this.usersService.findByEmail(data.email);
+    if (!user || !(await bcrypt.compare(data.password, user.password))) {
       return { message: 'Invalid credentials' };
     }
 

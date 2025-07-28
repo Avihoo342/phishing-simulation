@@ -9,7 +9,7 @@ export class PhishingAttempt {
   email: string;
 
   @Prop()
-  content: string;
+  content?: string;
 
   @Prop({ default: false })
   clicked: boolean;

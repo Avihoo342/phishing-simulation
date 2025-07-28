@@ -9,6 +9,11 @@ import { Attempt, AttemptSchema } from './attempt.schema';
     MongooseModule.forFeature([{ name: Attempt.name, schema: AttemptSchema }]),
   ],
   controllers: [AttemptsController],
-  providers: [AttemptsService],
+  providers: [ {
+      provide: 'IAttemptsService',
+      useClass: AttemptsService,
+    }
+  ],
+  exports: ['IAttemptsService']
 })
 export class AttemptsModule {}

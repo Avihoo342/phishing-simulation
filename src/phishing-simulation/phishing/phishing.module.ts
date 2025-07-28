@@ -11,6 +11,11 @@ import { PhishingAttempt, PhishingAttemptSchema } from './schemas/phishing.schem
     ]),
   ],
   controllers: [PhishingController],
-  providers: [PhishingService],
+  providers: [
+    {
+      provide: 'IPhishingService',
+      useClass: PhishingService,
+    },
+  ],
 })
 export class PhishingModule {}
