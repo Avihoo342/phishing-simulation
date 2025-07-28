@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { GoneException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import axios from 'axios';
@@ -32,24 +32,24 @@ export class AttemptsService implements IAttemptsService {
     return this.model.find();
   }
 
-async updateClick(id: string): Promise<any> {
-  const attempt = await this.model.findById(id);
-  if (!attempt) {
-    throw new Error('Attempt not found');
-  }
-
-  const now = new Date();
-  const diff = now.getTime() - attempt.createdAt.getTime();
-
-  if (diff > 60 * 1000) {
-    if (attempt.status !== AttemptStatus.EXPIRED) {
-      await this.model.findByIdAndUpdate(id, { status: AttemptStatus.EXPIRED });
+  async updateClick(id: string):  Promise<string | { message: string }>{
+    const attempt = await this.model.findById(id);
+    if (!attempt) {
+      throw new Error('Attempt not found');
     }
-    return { message: 'Link expired' };
-  }
 
-  await this.model.findByIdAndUpdate(id, { status: AttemptStatus.CLICKED }, { new: true });
-  const response = await axios.get(`${simulationUrl}/phishing/click/${id}`);
-  return response.data;
-}
+    const now = new Date();
+    const diff = now.getTime() - attempt.createdAt.getTime();
+
+    if (diff > 60 * 1000) {
+      if (attempt.status !== AttemptStatus.EXPIRED) {
+        await this.model.findByIdAndUpdate(id, { status: AttemptStatus.EXPIRED });
+      }
+      throw new GoneException('This phishing link has expired');
+    }
+
+    await this.model.findByIdAndUpdate(id, { status: AttemptStatus.CLICKED }, { new: true });
+    const response = await axios.get(`${simulationUrl}/phishing/click/${id}`);
+    return response.data;
+  }
 }

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { RegisterAuthDto } from './dto/register-auth.dto';
@@ -19,7 +19,7 @@ export class AuthService implements IAuthService {
   async login(data: LoginAuthDto) {
     const user = await this.usersService.findByEmail(data.email);
     if (!user || !(await bcrypt.compare(data.password, user.password))) {
-      return { message: 'Invalid credentials' };
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     const payload = { email: user.email, sub: user._id };
